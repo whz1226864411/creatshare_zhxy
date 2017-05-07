@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import cn.creat.zhxy.po.AppealParams;
 import cn.creat.zhxy.po.AttendParameter;
 import cn.creat.zhxy.po.User;
 import cn.creat.zhxy.service.AttendListService;
@@ -32,6 +33,8 @@ import cn.creat.zhxy.validgrop.AttendValidGropN;
 public class AttendListController {
 	
 	private static String attendListUrl;
+	private static String appealUrl;
+	
 	@Autowired
 	private AttendListService attendListService;
 	
@@ -41,6 +44,7 @@ public class AttendListController {
 		try {
 			properties.load(inStream);
 			AttendListController.setAttendListUrl(properties.getProperty("attendListUrl"));
+			AttendListController.setAppealUrl(properties.getProperty("appealUrl"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally{
@@ -54,10 +58,24 @@ public class AttendListController {
 		}
 	}
 	
+	@RequestMapping(value="/appeal",method=RequestMethod.POST)
+	public void appeal(HttpSession session,HttpServletResponse httpResponse,@Validated
+			AppealParams appealParams,BindingResult result) throws Exception{
+		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result,"IsSucceed",false);
+		if(printWriter == null){
+			return;
+		}
+		User user = (User) session.getAttribute("user");
+		String json = attendListService.appeal(AttendListController.getAppealUrl(), user, appealParams);
+		printWriter.write(json);
+		printWriter.flush();
+		printWriter.close();
+	}
+	
 	@RequestMapping(value="/getTodayAttend",method=RequestMethod.POST)
 	public void getTodayAttend(HttpSession session,HttpServletResponse httpResponse,@Validated(value=
 		{AttendValidGropN.class}) AttendParameter attendParameter,BindingResult result) throws Exception{
-		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result);
+		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result,"total",-1);
 		if(printWriter == null){
 			return;
 		}
@@ -71,7 +89,7 @@ public class AttendListController {
 	@RequestMapping(value="/getWeekAttend",method=RequestMethod.POST)
 	public void getWeekAttend(HttpSession session,HttpServletResponse httpResponse,@Validated(value=
 		{AttendValidGropN.class}) AttendParameter attendParameter,BindingResult result) throws Exception{
-		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result);
+		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result,"total",-1);
 		if(printWriter == null){
 			return;
 		}
@@ -85,7 +103,7 @@ public class AttendListController {
 	@RequestMapping(value="/getMonthAttend",method=RequestMethod.POST)
 	public void getMonthAttend(HttpSession session,HttpServletResponse httpResponse,@Validated(value=
 		{AttendValidGropN.class}) AttendParameter attendParameter,BindingResult result) throws Exception{
-		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result);
+		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result,"total",-1);
 		if(printWriter == null){
 			return;
 		}
@@ -99,7 +117,7 @@ public class AttendListController {
 	@RequestMapping(value="/getDiyAttend",method=RequestMethod.POST)
 	public void getDiyAttend(HttpSession session,HttpServletResponse httpResponse,@Validated(value=
 		{AttendValidGropD.class}) AttendParameter attendParameter,BindingResult result) throws Exception{
-		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result);
+		PrintWriter printWriter = getJsonPrintWriter(httpResponse, result,"total",-1);
 		if(printWriter == null){
 			return;
 		}
@@ -118,9 +136,9 @@ public class AttendListController {
 		AttendListController.attendListUrl = attendListUrl;
 	}
 	
-	private String errorToString(BindingResult result){
+	private String errorToString(BindingResult result,String type,Object value){
 		Map<String, Object> errors = new HashMap<String, Object>();
-		errors.put("total", -1);
+		errors.put(type, value);
 		StringBuilder sb = new StringBuilder();
 		for(ObjectError error : result.getAllErrors()){
 			sb.append(error.getDefaultMessage());
@@ -130,16 +148,24 @@ public class AttendListController {
 		return JSONObject.fromObject(errors).toString();
 	}
 	
-	private PrintWriter getJsonPrintWriter(HttpServletResponse response,BindingResult result) throws IOException{
+	private PrintWriter getJsonPrintWriter(HttpServletResponse response,BindingResult result,String type,Object value) throws IOException{
 		response.setContentType("application/json;charset=utf-8");
 		response.setCharacterEncoding("utf-8");
 		PrintWriter printWriter =  response.getWriter();
 		if(result.hasErrors()){
-			printWriter.write(errorToString(result));
+			printWriter.write(errorToString(result,type,value));
 			printWriter.flush();
 			printWriter.close();
 			return null;
 		}
 		return printWriter;
+	}
+	
+	public static String getAppealUrl() {
+		return appealUrl;
+	}
+
+	public static void setAppealUrl(String appealUrl) {
+		AttendListController.appealUrl = appealUrl;
 	}
 }

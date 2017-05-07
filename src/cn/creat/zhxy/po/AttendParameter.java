@@ -7,6 +7,9 @@ import cn.creat.zhxy.validgrop.AttendValidGropD;
 import cn.creat.zhxy.validgrop.AttendValidGropN;
 
 public class AttendParameter {
+	/**
+	 * 
+	 */
 	@NotNull(message="{attend.start.notnull}",groups={AttendValidGropD.class})
 	@Pattern(regexp="[0-9]{4}-[0-9]{2}-[0-9]{2}",message="{attend.date.notright}",groups={AttendValidGropD.class})
 	private String start;

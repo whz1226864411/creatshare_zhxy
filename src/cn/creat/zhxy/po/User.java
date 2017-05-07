@@ -1,12 +1,21 @@
 package cn.creat.zhxy.po;
 
+import java.io.Serializable;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import cn.creat.zhxy.utils.httputil.MyHttpClient;
 
-public class User {
+public class User implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
 	@NotNull(message="{user.username.notnull}")
 	@Size(min=8,max=8,message="{user.username.size}")
 	private String userName;

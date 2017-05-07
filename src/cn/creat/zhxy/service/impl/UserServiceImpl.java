@@ -1,11 +1,12 @@
 package cn.creat.zhxy.service.impl;
 
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 
@@ -41,6 +42,28 @@ public class UserServiceImpl implements UserService{
 		MyHttpClient client =user.getCilent();
 		CloseableHttpResponse response = client.sendGet(logoutUrl);
 		response.close();
+	}
+
+	public String getStuClass(User user,String stuClassUrl) throws Exception {
+		MyHttpClient client =user.getCilent();
+		String term_no = "";
+		Calendar date = Calendar.getInstance();
+		int year = date.get(Calendar.YEAR);
+		int month = date.get(Calendar.MONTH)+1;
+		int day = date.get(Calendar.DAY_OF_MONTH);
+		if(month > 8 || (month == 8 && day >20)){
+			term_no = year+"-"+(year+1)+"-1";
+		}else{
+			term_no = (year-1)+"-"+year+"-2";
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("json", true);
+		map.put("term_no", term_no);
+		CloseableHttpResponse response = client.sendPost(stuClassUrl, map, "utf-8", false);
+		HttpEntity entity = response.getEntity();
+		String json = EntityUtils.toString(entity, "utf-8");
+		response.close();
+		return json;
 	}
 	
 }

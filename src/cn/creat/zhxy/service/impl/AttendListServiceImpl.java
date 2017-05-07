@@ -6,14 +6,15 @@ import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import cn.creat.zhxy.po.AppealParams;
 import cn.creat.zhxy.po.AttendParameter;
 import cn.creat.zhxy.po.User;
 import cn.creat.zhxy.service.AttendListService;
 import cn.creat.zhxy.utils.dateparse.DateParse;
 import cn.creat.zhxy.utils.httputil.MyHttpClient;
+import cn.creat.zhxy.utils.params.ParamsToMap;
 
 public class AttendListServiceImpl implements AttendListService{
 
@@ -27,8 +28,8 @@ public class AttendListServiceImpl implements AttendListService{
 
 	public String getWeekAttend(String url, User user,
 			AttendParameter attendParameter) throws Exception {
-		Date start = new Date();
-		Date end = new Date(start.getTime()-1000*60*60*24*7);
+		Date end = new Date();
+		Date start = new Date(end.getTime()-1000*60*60*24*7);
 		attendParameter.setStart(DateParse.dateToString(start, "yyyy-MM-dd"));
 		attendParameter.setEnd(DateParse.dateToString(end, "yyyy-MM-dd"));
 		return getAttend(url, user, attendParameter, 2);
@@ -69,6 +70,16 @@ public class AttendListServiceImpl implements AttendListService{
 		map.put("page", attendParameter.getPage());
 		map.put("rows", attendParameter.getRows());
 		CloseableHttpResponse response = client.sendPost(url, map, "utf-8", false);
+		HttpEntity entity = response.getEntity();
+		return EntityUtils.toString(entity, "utf-8");
+	}
+
+	@Override
+	public String appeal(String url, User user, AppealParams appealParams)
+			throws Exception {
+		MyHttpClient client = user.getCilent();
+		Map<String, Object> map = ParamsToMap.paramsToMapByUp(appealParams, AppealParams.class);
+		CloseableHttpResponse response = client.sendPost(url, map, "utf-8", true);
 		HttpEntity entity = response.getEntity();
 		return EntityUtils.toString(entity, "utf-8");
 	}

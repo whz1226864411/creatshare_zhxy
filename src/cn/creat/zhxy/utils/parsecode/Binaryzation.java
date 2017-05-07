@@ -18,7 +18,7 @@ public class Binaryzation {
         //or 直接new个color对象  
         Color c=new Color(rgb);  
         r=c.getRed();  
-            g=c.getGreen();  
+        g=c.getGreen();  
         b=c.getBlue();  
         int top=(r+g+b)/3;  
         return (int)(top);  

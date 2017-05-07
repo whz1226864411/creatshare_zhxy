@@ -32,6 +32,7 @@ public class UserController {
 	private static String codeUrl;
 	private static String loginUrl;
 	private static String logoutUrl;
+	private static String stuClassUrl;
 	@Autowired
 	private UserService userService;
 	
@@ -43,6 +44,7 @@ public class UserController {
 			UserController.setCodeUrl(properties.getProperty("codeUrl"));
 			UserController.setLoginUrl(properties.getProperty("loginUrl"));
 			UserController.setLogoutUrl(properties.getProperty("logoutUrl"));
+			UserController.setStuClassUrl(properties.getProperty("getStuClassUrl"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally{
@@ -55,6 +57,14 @@ public class UserController {
 			}
 		}
 	}
+	public static String getStuClassUrl() {
+		return stuClassUrl;
+	}
+
+	public static void setStuClassUrl(String stuClassUrl) {
+		UserController.stuClassUrl = stuClassUrl;
+	}
+
 	//登录
 	@RequestMapping(value="/login",method=RequestMethod.POST)
 	public void login(HttpSession session,HttpServletResponse httpResponse,@Validated User user,
@@ -99,6 +109,19 @@ public class UserController {
 		userService.logout(user, UserController.getLogoutUrl());
 		session.invalidate();
 		printWriter.write("{\"total\":-3,\"Msg\":\"退出成功\"}");
+		printWriter.flush();
+		printWriter.close();
+	}
+	
+	//获取课表信息
+	@RequestMapping(value="/getStuClass")
+	public void getStuClass(HttpSession session,HttpServletResponse httpResponse) throws Exception{
+		httpResponse.setContentType("application/json;charset=utf-8");
+		httpResponse.setCharacterEncoding("utf-8");
+		PrintWriter printWriter =  httpResponse.getWriter();
+		User user = (User) session.getAttribute("user");
+		String classes = userService.getStuClass(user, UserController.getStuClassUrl());
+		printWriter.write(classes);
 		printWriter.flush();
 		printWriter.close();
 	}

@@ -21,8 +21,7 @@ public class LoginHandleInterceptor implements HandlerInterceptor{
 			return true;
 		}
 		User user = (User) request.getSession().getAttribute("user");
-		if(user == null){
-			
+		if(user == null){	
 			PrintWriter printWriter = response.getWriter();
 			printWriter.write("{\"total\":-2,\"Msg\":\"您还未登录\"}");
 			printWriter.flush();

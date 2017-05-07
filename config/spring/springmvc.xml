@@ -17,6 +17,10 @@
 	<context:component-scan base-package="cn.creat.zhxy.controller" />
 	
 	<mvc:interceptors>
+		<!-- <mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean class="cn.creat.zhxy.interceptor.AllowOriginInterceptor"></bean>
+		</mvc:interceptor> -->
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
 			<bean class="cn.creat.zhxy.interceptor.LoginHandleInterceptor"></bean>
@@ -38,11 +42,11 @@
 		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 		<!-- 在webBindingInitializer中注入自定义属性编辑器、自定义转换器 -->
 		<property name="webBindingInitializer" ref="customBinder"></property>
-		<property name="messageConverters">
+		<!-- <property name="messageConverters">
 			<list>
-				<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
+				<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"></bean>
 			</list>
-		</property>
+		</property> -->
 	</bean>
 	
 	<!-- 自定义webBinder -->
